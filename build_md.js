@@ -1,0 +1,23 @@
+// Генерує README.md з content.js: Markdown-версія ДЗ8 для швидкого перегляду.
+const fs = require('fs'); const C = require('./content.js');
+const esc = s => String(s).replace(/\|/g, '\\|');
+const tbl = (h, rows) => ['| ' + h.join(' | ') + ' |', '|' + h.map(() => '---').join('|') + '|', ...rows.map(r => '| ' + r.map(esc).join(' | ') + ' |')].join('\n');
+let md = `# ${C.title}\n\n` + tbl(['Поле', 'Значення'], C.meta) + '\n\n## Контекст\n\n' + C.context.join('\n\n') + '\n\n';
+md += `![Запит до медичних даних](data_flow.png)\n\n*${C.figureCaption}*\n\n`;
+md += '## 1. Класифікація даних\n\n' + C.s1.intro.join('\n\n') + '\n\n' + tbl(['Категорія', 'Приклади в СУМЗ', 'Рівень', 'Вплив C / I / A', 'Регуляторні мітки'], C.s1.categories) + '\n\n';
+md += '### Як мітки інтегруються в систему\n\n' + tbl(['Де', 'Як'], C.s1.integration) + `\n\n> ${C.s1.note}\n\n`;
+md += '## 2. Правова підстава обробки (legal basis)\n\n' + C.s2.intro.join('\n\n') + '\n\n' + tbl(['Мета (purpose)', 'Правова підстава', 'Що це означає для системи'], C.s2.purposes) + '\n\n';
+md += '### Як зберігається згода: таблиця consent\n\n' + tbl(['Поле', 'Призначення'], C.s2.consentSchema) + '\n\n';
+md += '### Як це використовується під час доступу\n\n' + C.s2.usage.map(t => '- ' + t).join('\n') + '\n\n';
+md += '## 3. Контроль доступу до даних\n\n' + C.s3.intro.join('\n\n') + '\n\n### PoLP і need-to-know за ролями\n\n' + tbl(['Роль', 'Бачить (need-to-know)', 'Не бачить / маскується'], C.s3.roles) + '\n\n';
+md += '### Механізми\n\n' + tbl(['Механізм', 'На чому базується', 'Як діє'], C.s3.mechanisms) + `\n\n> ${C.s3.note}\n\n`;
+md += '## 4. Логування та аудит\n\n' + C.s4.intro.join('\n\n') + '\n\n### Що потрапляє в audit trail\n\n' + C.s4.events.map(t => '- ' + t).join('\n') + '\n\n';
+md += '### Вигляд запису журналу доступу до чутливих даних\n\n```json\n' + C.s4.logJson.join('\n') + '\n```\n\n' + C.s4.portal.join('\n\n') + '\n\n';
+md += '## 5. Retention і право на забуття\n\n' + C.s5.intro.join('\n\n') + '\n\n' + tbl(['Тип даних', 'Строк зберігання', 'Підстава', 'Що відбувається після строку'], C.s5.retention) + '\n\n';
+md += '### Як виконується запит на видалення\n\n' + C.s5.rtbf.map((t, i) => `${i + 1}. ${t}`).join('\n') + '\n\n### Технічні виклики\n\n' + tbl(['Виклик', 'У чому проблема', 'Рішення'], C.s5.challenges) + '\n\n';
+md += '## 6. Шифрування й тестування\n\n' + tbl(['Стан даних', 'Механізм', 'Навіщо'], C.s6.encryption) + '\n\n' + C.s6.keys + '\n\n### Тестування без production-даних\n\n' + C.s6.testing.join('\n\n') + '\n\n';
+md += '### Запобіжники: як prod-дані не потрапляють у dev/test\n\n' + C.s6.guardrails.map(t => '- ' + t).join('\n') + '\n\n';
+md += '## Бонус: залишкові ризики\n\n' + tbl(['Ризик', 'Чому лишається', 'Як зменшуємо', 'Відповідальний'], C.risks) + '\n\n';
+md += '## Висновок\n\n' + C.conclusion.join('\n\n') + '\n\n### Звʼязок з попередніми ДЗ\n\n' + tbl(['Елемент ДЗ8', 'На що спирається', 'Що додано'], C.trace) + '\n\n---\n\n';
+md += 'Збірка: `python3 draw_data_flow.py` → `NODE_PATH=<node_modules з docx> node build_docx.js` → `node build_md.js`. Файли для здачі: `ДЗ8_Джафарлі_Фарід.docx` (завантажити в Google Docs, відкрити доступ на перегляд) і `ДЗ8_Джафарлі_Фарід.zip`. Нічого не здано, подає студент.\n';
+fs.writeFileSync('README.md', md); console.log('README.md', md.length);

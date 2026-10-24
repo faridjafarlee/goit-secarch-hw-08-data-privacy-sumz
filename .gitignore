@@ -1,0 +1,18 @@
+# Node and Python build helpers
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+
+# Submission archives
+*.zip
+
+# Editors and OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Local secrets
+.env
+.env.*
+!.env.example
